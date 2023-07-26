@@ -35,7 +35,7 @@ class SCULPT_MT_SculptMenu(Menu):
         col.operator("wm.tool_set_by_id",
                     text='Draw', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.draw')).name = "builtin_brush.Draw" 
         col.operator("wm.tool_set_by_id",
-                    text='Draw Sharp', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.draw_sharp')).name = "builtin_brush.Draw Sharp" 
+                    text='Sharp', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.draw_sharp')).name = "builtin_brush.Draw Sharp" 
         col.operator("wm.tool_set_by_id",
                     text='Claystrips', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.clay_strips')).name = 'builtin_brush.Clay Strips'
         col.operator("wm.tool_set_by_id",
@@ -68,7 +68,7 @@ class SCULPT_MT_SculptMenu(Menu):
         col.operator("wm.tool_set_by_id",
                         text='Grab', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.grab')).name = 'builtin_brush.Grab'
         col.operator("wm.tool_set_by_id",
-                        text='Elastic Deform', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.elastic_deform')).name = 'builtin_brush.Elastic Deform'
+                        text='Elastic', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.elastic_deform')).name = 'builtin_brush.Elastic Deform'
         col.operator("wm.tool_set_by_id",
                         text='Snakehook', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.snake_hook')).name = 'builtin_brush.Snake Hook'
         col.operator("wm.tool_set_by_id", text='Pose',
