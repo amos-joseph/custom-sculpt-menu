@@ -18,13 +18,10 @@ from bpy.types import (
 from bl_ui.space_toolsystem_common import ToolSelectPanelHelper
 
 
-# Sculpt Menus - W
-class SCULPT_M_SculptMenu(Menu):
-    bl_idname = "SCULPT_M_SculptMenu"
+# Sculpt Menus
+class SCULPT_MT_SculptMenu(Menu):
+    bl_idname = "SCULPT_MT_SculptMenu"
     bl_label = "Sculpt Menu"
-    
-    def invoke(self, context, event):
-        return context.window_manager.invoke_popup(self, width=750)
 
     def draw(self, context):
         layout = self.layout
@@ -76,12 +73,12 @@ class SCULPT_M_SculptMenu(Menu):
                         text='Snakehook', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.snake_hook')).name = 'builtin_brush.Snake Hook'
         col.operator("wm.tool_set_by_id", text='Pose',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.pose')).name = 'builtin_brush.Pose'
-        col.menu(SCULPT_M_Masking.bl_idname,text="Masking")
-        col.menu(SCULPT_M_Faceset.bl_idname,text="Face Sets")
-        col.menu(SCULPT_M_Trim.bl_idname,text="Trim")
-        col.menu(SCULPT_M_Transform.bl_idname,text="Transform")
-        col.menu(SCULPT_M_Symmetrize.bl_idname,text="Symmetrize")
-        col.menu(SCULPT_M_Remesh.bl_idname,text="Remesh")
+        col.menu(SCULPT_MT_Masking.bl_idname,text="Masking")
+        col.menu(SCULPT_MT_Faceset.bl_idname,text="Face Sets")
+        col.menu(SCULPT_MT_Trim.bl_idname,text="Trim")
+        col.menu(SCULPT_MT_Transform.bl_idname,text="Transform")
+        col.menu(SCULPT_MT_Symmetrize.bl_idname,text="Symmetrize")
+        col.menu(SCULPT_MT_Remesh.bl_idname,text="Remesh")
         area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
         space = next(space for space in area.spaces if space.type == 'VIEW_3D')
         col.prop(space.overlay, "show_wireframes");
@@ -91,8 +88,8 @@ class SCULPT_M_SculptMenu(Menu):
         col.prop(mesh, "use_mirror_z", text="Z Mirror", toggle=True)
 
 # Pie Sculpt 2
-class SCULPT_M_Masking(Menu):
-    bl_idname = "SCULPT_M_Masking"
+class SCULPT_MT_Masking(Menu):
+    bl_idname = "SCULPT_MT_Masking"
     bl_label = "Masking"
 
     def draw(self, context):
@@ -115,8 +112,8 @@ class SCULPT_M_Masking(Menu):
 
 
 # Face Set Menu
-class SCULPT_M_Faceset(Menu):
-    bl_idname = "SCULPT_M_Faceset"
+class SCULPT_MT_Faceset(Menu):
+    bl_idname = "SCULPT_MT_Faceset"
     bl_label = "Face Set"
 
     def draw(self, context):
@@ -134,8 +131,8 @@ class SCULPT_M_Faceset(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.sculpt.face_set_edit')).name = 'builtin.face_set_edit'
 
 # Trim Menu
-class SCULPT_M_Trim(Menu):
-    bl_idname = "SCULPT_M_Trim"
+class SCULPT_MT_Trim(Menu):
+    bl_idname = "SCULPT_MT_Trim"
     bl_label = "Trim"
 
     def draw(self, context):
@@ -151,8 +148,8 @@ class SCULPT_M_Trim(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.sculpt.box_trim')).name = 'builtin.box_trim'
                         
 # Translate Menu
-class SCULPT_M_Transform(Menu):
-    bl_idname = "SCULPT_M_Transform"
+class SCULPT_MT_Transform(Menu):
+    bl_idname = "SCULPT_MT_Transform"
     bl_label = "Transform"
 
     def draw(self, context):
@@ -169,8 +166,8 @@ class SCULPT_M_Transform(Menu):
         col.operator("wm.tool_set_by_id", text='Transform',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.transform')).name = 'builtin.transform'
 # Symmetrize Menu
-class SCULPT_M_Symmetrize(Menu):
-    bl_idname = "SCULPT_M_Symmetrize"
+class SCULPT_MT_Symmetrize(Menu):
+    bl_idname = "SCULPT_MT_Symmetrize"
     bl_label = "Symmetrize"
 
     def draw(self, context):
@@ -191,8 +188,8 @@ class SCULPT_M_Symmetrize(Menu):
         props.direction = 'NEGATIVE_Z'  
         
 # Remesh Menu
-class SCULPT_M_Remesh(Menu):
-    bl_idname = "SCULPT_M_Remesh"
+class SCULPT_MT_Remesh(Menu):
+    bl_idname = "SCULPT_MT_Remesh"
     bl_label = "Remesh"
 
     def draw(self, context):
@@ -218,7 +215,7 @@ class SCULPT_M_Remesh(Menu):
         props = col.operator("sculptmenu.remesh", text='.005')
         props.voxel_size = .005
 
-class SCULPT_OP_Symmetrize(Operator):
+class SCULPT_OT_Symmetrize(Operator):
     bl_idname = "sculptmenu.symmetrize"
     bl_label = "Symmetrize"
     
@@ -237,7 +234,7 @@ class SCULPT_OP_Symmetrize(Operator):
         self.report({'INFO'}, bl_info.get('name') + ': Copied mesh data')
         return {'FINISHED'}
     
-class SCULPT_OP_Remesh(Operator):
+class SCULPT_OT_Remesh(Operator):
     bl_label = "Remesh"
     bl_idname = "sculptmenu.remesh"
     bl_description = "Remesh selected object."
@@ -258,15 +255,15 @@ class SCULPT_OP_Remesh(Operator):
         return {'FINISHED'}
 
 classes = (
-    SCULPT_M_SculptMenu,
-    SCULPT_M_Masking,
-    SCULPT_M_Faceset,
-    SCULPT_M_Trim,
-    SCULPT_M_Transform,
-    SCULPT_M_Symmetrize,
-    SCULPT_OP_Symmetrize,
-    SCULPT_M_Remesh,
-    SCULPT_OP_Remesh,
+    SCULPT_MT_SculptMenu,
+    SCULPT_MT_Masking,
+    SCULPT_MT_Faceset,
+    SCULPT_MT_Trim,
+    SCULPT_MT_Transform,
+    SCULPT_MT_Symmetrize,
+    SCULPT_OT_Symmetrize,
+    SCULPT_MT_Remesh,
+    SCULPT_OT_Remesh,
     )
 
 addon_keymaps = []
@@ -279,9 +276,9 @@ def register():
     wm = bpy.context.window_manager
     if wm.keyconfigs.addon:
         # Sculpt Menu
-        km = wm.keyconfigs.addon.keymaps.new(name='Sculpt Menu')
-        kmi = km.keymap_items.new('wm.call_menu', 'W', 'PRESS')
-        kmi.properties.name = "SCULPT_M_SculptMenu"
+        km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
+        kmi = km.keymap_items.new('wm.call_menu', 'W', 'PRESS', ctrl=True)
+        kmi.properties.name = SCULPT_MT_SculptMenu.bl_idname
         addon_keymaps.append((km, kmi))
 
 
