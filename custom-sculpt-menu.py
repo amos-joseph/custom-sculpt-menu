@@ -195,7 +195,11 @@ class SCULPT_MT_Remesh(Menu):
     def draw(self, context):
         layout = self.layout
         col = layout.column()
-        col.scale_y = 1.2        
+        col.scale_y = 1.2  
+        props = col.operator("sculptmenu.remesh", text='.5')
+        props.voxel_size = .5      
+        props = col.operator("sculptmenu.remesh", text='.1')
+        props.voxel_size = .1       
         props = col.operator("sculptmenu.remesh", text='.06')
         props.voxel_size = .06 
         props = col.operator("sculptmenu.remesh", text='.05')
