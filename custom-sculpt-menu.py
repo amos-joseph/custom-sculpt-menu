@@ -48,14 +48,14 @@ class SCULPT_MT_SculptMenu(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.flatten')).name = 'builtin_brush.Flatten'
         col.operator("wm.tool_set_by_id", text='Scrape',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.scrape')).name = 'builtin_brush.Scrape'
+        col.operator("wm.tool_set_by_id", text='Fill',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.fill')).name = 'builtin_brush.Fill'
         col.operator("wm.tool_set_by_id", text='Smooth',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.smooth')).name = 'builtin_brush.Smooth'
         col.operator("wm.tool_set_by_id",
                     text='Inflate', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.inflate')).name = 'builtin_brush.Inflate'
         col.operator("wm.tool_set_by_id",
                     text='Blob', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.blob')).name = 'builtin_brush.Blob'
-        col.operator("wm.tool_set_by_id", text='Fill',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.fill')).name = 'builtin_brush.Fill'
         col.operator("wm.tool_set_by_id", text='Layer',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.layer')).name = 'builtin_brush.Layer'
         col.operator("wm.tool_set_by_id", text='Cloth',
@@ -70,15 +70,15 @@ class SCULPT_MT_SculptMenu(Menu):
         col.operator("wm.tool_set_by_id",
                         text='Elastic', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.elastic_deform')).name = 'builtin_brush.Elastic Deform'
         col.operator("wm.tool_set_by_id",
-                        text='Snakehook', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.snake_hook')).name = 'builtin_brush.Snake Hook'
+                        text='Snake', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.snake_hook')).name = 'builtin_brush.Snake Hook'
         col.operator("wm.tool_set_by_id", text='Pose',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.pose')).name = 'builtin_brush.Pose'
+        col.menu(SCULPT_MT_Remesh.bl_idname,text="Remesh")
         col.menu(SCULPT_MT_Masking.bl_idname,text="Masking")
         col.menu(SCULPT_MT_Faceset.bl_idname,text="Face Sets")
         col.menu(SCULPT_MT_Trim.bl_idname,text="Trim")
         col.menu(SCULPT_MT_Transform.bl_idname,text="Transform")
         col.menu(SCULPT_MT_Symmetrize.bl_idname,text="Symmetrize")
-        col.menu(SCULPT_MT_Remesh.bl_idname,text="Remesh")
         area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
         space = next(space for space in area.spaces if space.type == 'VIEW_3D')
         col.prop(space.overlay, "show_wireframes");
@@ -86,8 +86,13 @@ class SCULPT_MT_SculptMenu(Menu):
         col.prop(mesh, "use_mirror_x", text="X Mirror", toggle=True)
         col.prop(mesh, "use_mirror_y", text="Y Mirror", toggle=True)
         col.prop(mesh, "use_mirror_z", text="Z Mirror", toggle=True)
+        col.operator(
+            "sculpt.dynamic_topology_toggle",
+            icon='CHECKBOX_HLT' if context.sculpt_object.use_dynamic_topology_sculpting else 'CHECKBOX_DEHLT',
+            text="Dyntopo"
+        )
 
-# Pie Sculpt 2
+# Masking Menu
 class SCULPT_MT_Masking(Menu):
     bl_idname = "SCULPT_MT_Masking"
     bl_label = "Masking"
@@ -105,10 +110,12 @@ class SCULPT_MT_Masking(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.border_mask")).name = 'builtin.box_mask' 
         col.operator("wm.tool_set_by_id", text='Line Mask',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.line_mask")).name = 'builtin.line_mask'   
-        props = col.operator("paint.mask_flood_fill", text='Invert Mask')
-        props.mode = 'INVERT'
-        props = col.operator("paint.mask_flood_fill", text='Clear Mask')
-        props.mode = 'VALUE'  
+        col.operator("paint.mask_flood_fill", text='Invert Mask').mode = 'INVERT'
+        col.operator("paint.mask_flood_fill", text='Clear Mask').mode = 'VALUE'  
+        col.operator("sculptmenu.maskcommands", text='Smooth Mask').mode = 'SMOOTH'
+        col.operator("sculptmenu.maskcommands", text='Sharpen Mask').mode = 'SHARPEN'
+        col.operator("sculptmenu.maskcommands", text='Slice to Object').mode = 'SLICE'
+
 
 
 # Face Set Menu
@@ -165,6 +172,8 @@ class SCULPT_MT_Transform(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.resize')).name = 'builtin.scale'
         col.operator("wm.tool_set_by_id", text='Transform',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.transform')).name = 'builtin.transform'
+        col.operator("sculptmenu.setpivot", text='Pivot to Mask Border').mode='BORDER'
+        
 # Symmetrize Menu
 class SCULPT_MT_Symmetrize(Menu):
     bl_idname = "SCULPT_MT_Symmetrize"
@@ -174,18 +183,12 @@ class SCULPT_MT_Symmetrize(Menu):
         layout = self.layout
         col = layout.column()
         col.scale_y = 1.2        
-        props = col.operator("sculptmenu.symmetrize", text='+X to -X')
-        props.direction = 'POSITIVE_X'  
-        props = col.operator("sculptmenu.symmetrize", text='-X to +X')
-        props.direction = 'NEGATIVE_X'  
-        props = col.operator("sculptmenu.symmetrize", text='+Y to -Y')
-        props.direction = 'POSITIVE_Y'  
-        props = col.operator("sculptmenu.symmetrize", text='-Y to +Y')
-        props.direction = 'NEGATIVE_Y'  
-        props = col.operator("sculptmenu.symmetrize", text='+Z to -Z')
-        props.direction = 'POSITIVE_Z'  
-        props = col.operator("sculptmenu.symmetrize", text='-Z to +Z')
-        props.direction = 'NEGATIVE_Z'  
+        col.operator("sculptmenu.symmetrize", text='+X to -X').direction = 'POSITIVE_X'  
+        col.operator("sculptmenu.symmetrize", text='-X to +X').direction = 'NEGATIVE_X'  
+        col.operator("sculptmenu.symmetrize", text='+Y to -Y').direction = 'POSITIVE_Y'  
+        col.operator("sculptmenu.symmetrize", text='-Y to +Y').direction = 'NEGATIVE_Y'  
+        col.operator("sculptmenu.symmetrize", text='+Z to -Z').direction = 'POSITIVE_Z'  
+        col.operator("sculptmenu.symmetrize", text='-Z to +Z').direction = 'NEGATIVE_Z'  
         
 # Remesh Menu
 class SCULPT_MT_Remesh(Menu):
@@ -196,28 +199,46 @@ class SCULPT_MT_Remesh(Menu):
         layout = self.layout
         col = layout.column()
         col.scale_y = 1.2  
-        props = col.operator("sculptmenu.remesh", text='.5')
-        props.voxel_size = .5      
-        props = col.operator("sculptmenu.remesh", text='.1')
-        props.voxel_size = .1       
-        props = col.operator("sculptmenu.remesh", text='.06')
-        props.voxel_size = .06 
-        props = col.operator("sculptmenu.remesh", text='.05')
-        props.voxel_size = .05 
-        props = col.operator("sculptmenu.remesh", text='.04')
-        props.voxel_size = .04 
-        props = col.operator("sculptmenu.remesh", text='.03')
-        props.voxel_size = .03 
-        props = col.operator("sculptmenu.remesh", text='.02')
-        props.voxel_size = .02 
-        props = col.operator("sculptmenu.remesh", text='.01')
-        props.voxel_size = .01 
-        props = col.operator("sculptmenu.remesh", text='.015')
-        props.voxel_size = .015
-        props = col.operator("sculptmenu.remesh", text='.0075')
-        props.voxel_size = .0075
-        props = col.operator("sculptmenu.remesh", text='.005')
-        props.voxel_size = .005
+        col.operator("sculptmenu.remesh", text='Remesh at Current').voxel_size = 0 
+        col.operator("sculptmenu.remesh", text='.5').voxel_size = .5      
+        col.operator("sculptmenu.remesh", text='.1').voxel_size = .1       
+        col.operator("sculptmenu.remesh", text='.06').voxel_size = .06 
+        col.operator("sculptmenu.remesh", text='.05').voxel_size = .05 
+        col.operator("sculptmenu.remesh", text='.04').voxel_size = .04 
+        col.operator("sculptmenu.remesh", text='.03').voxel_size = .03 
+        col.operator("sculptmenu.remesh", text='.02').voxel_size = .02 
+        col.operator("sculptmenu.remesh", text='.01').voxel_size = .01 
+        col.operator("sculptmenu.remesh", text='.015').voxel_size = .015
+        col.operator("sculptmenu.remesh", text='.0075').voxel_size = .0075
+        col.operator("sculptmenu.remesh", text='.005').voxel_size = .005
+
+class SCULPT_OT_SetPivot(Operator):
+    bl_idname = "sculptmenu.setpivot"
+    bl_label = "Set Pivot for Transform"
+    
+    mode: bpy.props.StringProperty(name="Pivot Mode")
+
+    def execute(self, context):
+
+        bpy.ops.sculpt.set_pivot_position(mode=self.mode)
+        return {'FINISHED'}
+    
+class SCULPT_OT_MaskCommands(Operator):
+    bl_idname = "sculptmenu.maskcommands"
+    bl_label = "Run various mask operators"
+    
+    mode: bpy.props.StringProperty(name="Pivot Mode")
+
+    def execute(self, context):
+
+        if self.mode == 'SMOOTH':
+            bpy.ops.sculpt.mask_filter(filter_type='SMOOTH')
+        elif self.mode == 'SHARPEN':
+            bpy.ops.sculpt.mask_filter(filter_type='SHARPEN')
+        elif self.mode == 'SLICE':
+            bpy.ops.mesh.paint_mask_slice(new_object=True)
+        
+        return {'FINISHED'}
 
 class SCULPT_OT_Symmetrize(Operator):
     bl_idname = "sculptmenu.symmetrize"
@@ -253,9 +274,14 @@ class SCULPT_OT_Remesh(Operator):
 
         if bpy.context.active_object.mode != 'SCULPT' and bpy.context.active_object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='SCULPT')
-        bpy.context.object.data.remesh_voxel_size = self.voxel_size
-        bpy.ops.object.voxel_remesh()
-        self.report({'INFO'}, bl_info.get('name') + ': Remeshed to ' + str(round(self.voxel_size, 4)) + ' voxel size')
+
+        if self.voxel_size == 0:
+            bpy.ops.object.voxel_remesh()
+            self.report({'INFO'}, bl_info.get('name') + ': Remeshed to ' + str(round(bpy.context.object.data.remesh_voxel_size, 4)) + ' voxel size')
+        else:
+            bpy.context.object.data.remesh_voxel_size = self.voxel_size
+            bpy.ops.object.voxel_remesh()
+            self.report({'INFO'}, bl_info.get('name') + ': Remeshed to ' + str(round(self.voxel_size, 4)) + ' voxel size')
         return {'FINISHED'}
 
 classes = (
@@ -268,6 +294,8 @@ classes = (
     SCULPT_OT_Symmetrize,
     SCULPT_MT_Remesh,
     SCULPT_OT_Remesh,
+    SCULPT_OT_SetPivot,
+    SCULPT_OT_MaskCommands,
     )
 
 addon_keymaps = []
