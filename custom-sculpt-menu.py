@@ -285,6 +285,10 @@ class SCULPT_OT_Remesh(Operator):
         if bpy.context.active_object.mode != 'SCULPT' and bpy.context.active_object.mode != 'OBJECT':
             bpy.ops.object.mode_set(mode='SCULPT')
 
+        dyntopo = context.sculpt_object.use_dynamic_topology_sculpting
+        if dyntopo == True:
+            bpy.ops.sculpt.dynamic_topology_toggle()
+
         if self.voxel_size == 0:
             bpy.ops.object.voxel_remesh()
             self.report({'INFO'}, bl_info.get('name') + ': Remeshed to ' + str(round(bpy.context.object.data.remesh_voxel_size, 4)) + ' voxel size')
@@ -292,6 +296,10 @@ class SCULPT_OT_Remesh(Operator):
             bpy.context.object.data.remesh_voxel_size = self.voxel_size
             bpy.ops.object.voxel_remesh()
             self.report({'INFO'}, bl_info.get('name') + ': Remeshed to ' + str(round(self.voxel_size, 4)) + ' voxel size')
+        
+        if dyntopo == True:
+            bpy.ops.sculpt.dynamic_topology_toggle()
+
         return {'FINISHED'}
 
 classes = (
