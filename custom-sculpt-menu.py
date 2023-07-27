@@ -91,6 +91,7 @@ class SCULPT_MT_SculptMenu(Menu):
             icon='CHECKBOX_HLT' if context.sculpt_object.use_dynamic_topology_sculpting else 'CHECKBOX_DEHLT',
             text="Dyntopo"
         )
+        col.operator("sculptmenu.floodfill", text='Flood Fill')
 
 # Masking Menu
 class SCULPT_MT_Masking(Menu):
@@ -222,6 +223,15 @@ class SCULPT_OT_SetPivot(Operator):
 
         bpy.ops.sculpt.set_pivot_position(mode=self.mode)
         return {'FINISHED'}
+
+class SCULPT_OT_FloodFill(Operator):
+    bl_idname = "sculptmenu.floodfill"
+    bl_label = "Dyntopo Flood Fill"
+
+    def execute(self, context):
+
+        bpy.ops.sculpt.detail_flood_fill()
+        return {'FINISHED'}
     
 class SCULPT_OT_MaskCommands(Operator):
     bl_idname = "sculptmenu.maskcommands"
@@ -296,6 +306,7 @@ classes = (
     SCULPT_OT_Remesh,
     SCULPT_OT_SetPivot,
     SCULPT_OT_MaskCommands,
+    SCULPT_OT_FloodFill,
     )
 
 addon_keymaps = []
