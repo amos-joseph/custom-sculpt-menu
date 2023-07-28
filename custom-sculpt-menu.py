@@ -93,6 +93,51 @@ class SCULPT_MT_SculptMenu(Menu):
         )
         col.operator("sculptmenu.floodfill", text='Flood Fill')
 
+# Mask and Transform Menu
+class SCULPT_MT_MaskTransMenu(Menu):
+    bl_idname = "SCULPT_MT_MaskTransMenu"
+    bl_label = "Mask and Transform Menu"
+
+    def draw(self, context):
+        layout = self.layout
+        
+        # Create two columns, by using a split layout.
+        split = layout.split()
+
+        # First column
+        col = split.column()
+        col.scale_y = 1.2
+        col.operator("wm.tool_set_by_id", text='Mask',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.mask')).name = 'builtin_brush.Mask'
+        col.operator("wm.tool_set_by_id", text='Lasso Mask',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.lasso_mask")).name = 'builtin.lasso_mask' 
+        col.operator("wm.tool_set_by_id", text='Box Mask',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.border_mask")).name = 'builtin.box_mask' 
+        col.operator("wm.tool_set_by_id", text='Line Mask',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.line_mask")).name = 'builtin.line_mask'   
+        col.operator("paint.mask_flood_fill", text='Invert Mask').mode = 'INVERT'
+        col.operator("paint.mask_flood_fill", text='Clear Mask').mode = 'VALUE'  
+        col.operator("sculptmenu.maskcommands", text='Smooth Mask').mode = 'SMOOTH'
+        col.operator("sculptmenu.maskcommands", text='Sharpen Mask').mode = 'SHARPEN'
+        col.operator("sculptmenu.maskcommands", text='Slice to Object').mode = 'SLICE'
+              
+        # Second column, aligned
+        col = split.column(align=True)
+        col.scale_y = 1.2
+        
+        col.operator("wm.tool_set_by_id", text='Move',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.translate')).name = 'builtin.move'
+        col.operator("wm.tool_set_by_id", text='Rotate',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.rotate')).name = 'builtin.rotate'
+        col.operator("wm.tool_set_by_id", text='Scale',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.resize')).name = 'builtin.scale'
+        col.operator("wm.tool_set_by_id", text='Transform',
+                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.transform')).name = 'builtin.transform'
+        col.operator("sculptmenu.setpivot", text='Pivot to Mask Border').mode='BORDER'
+        col.operator("sculptmenu.setpivot", text='Pivot to Unmasked').mode='UNMASKED'
+        col.operator("sculptmenu.setpivot", text='Pivot to Origin').mode='ORIGIN'
+        col.operator("sculptmenu.setpivot", text='Pivot to Vertex').mode='ACTIVE'
+        
 # Masking Menu
 class SCULPT_MT_Masking(Menu):
     bl_idname = "SCULPT_MT_Masking"
@@ -116,8 +161,6 @@ class SCULPT_MT_Masking(Menu):
         col.operator("sculptmenu.maskcommands", text='Smooth Mask').mode = 'SMOOTH'
         col.operator("sculptmenu.maskcommands", text='Sharpen Mask').mode = 'SHARPEN'
         col.operator("sculptmenu.maskcommands", text='Slice to Object').mode = 'SLICE'
-
-
 
 # Face Set Menu
 class SCULPT_MT_Faceset(Menu):
@@ -304,6 +347,7 @@ class SCULPT_OT_Remesh(Operator):
 
 classes = (
     SCULPT_MT_SculptMenu,
+    SCULPT_MT_MaskTransMenu,
     SCULPT_MT_Masking,
     SCULPT_MT_Faceset,
     SCULPT_MT_Trim,
@@ -330,6 +374,9 @@ def register():
         km = wm.keyconfigs.addon.keymaps.new(name='Sculpt')
         kmi = km.keymap_items.new('wm.call_menu', 'W', 'PRESS', ctrl=True)
         kmi.properties.name = SCULPT_MT_SculptMenu.bl_idname
+        addon_keymaps.append((km, kmi))
+        kmi = km.keymap_items.new('wm.call_menu', 'M', 'PRESS')
+        kmi.properties.name = SCULPT_MT_MaskTransMenu.bl_idname
         addon_keymaps.append((km, kmi))
 
 
