@@ -73,25 +73,25 @@ class SCULPT_MT_SculptMenu(Menu):
                         text='Snake', icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.snake_hook')).name = 'builtin_brush.Snake Hook'
         col.operator("wm.tool_set_by_id", text='Pose',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.pose')).name = 'builtin_brush.Pose'
-        col.menu(SCULPT_MT_Remesh.bl_idname,text="Remesh")
-        col.menu(SCULPT_MT_Masking.bl_idname,text="Masking")
-        col.menu(SCULPT_MT_Faceset.bl_idname,text="Face Sets")
-        col.menu(SCULPT_MT_Trim.bl_idname,text="Trim")
-        col.menu(SCULPT_MT_Transform.bl_idname,text="Transform")
-        col.menu(SCULPT_MT_Symmetrize.bl_idname,text="Symmetrize")
-        area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
-        space = next(space for space in area.spaces if space.type == 'VIEW_3D')
-        col.prop(space.overlay, "show_wireframes");
-        mesh = context.object.data
-        col.prop(mesh, "use_mirror_x", text="X Mirror", toggle=True)
-        col.prop(mesh, "use_mirror_y", text="Y Mirror", toggle=True)
-        col.prop(mesh, "use_mirror_z", text="Z Mirror", toggle=True)
+        col.operator("sculptmenu.remesh", text='Remesh').voxel_size = 0 
+        col.menu(SCULPT_MT_Remesh.bl_idname,text="Remesh Detail")
         col.operator(
             "sculpt.dynamic_topology_toggle",
             icon='CHECKBOX_HLT' if context.sculpt_object.use_dynamic_topology_sculpting else 'CHECKBOX_DEHLT',
             text="Dyntopo"
         )
         col.operator("sculptmenu.floodfill", text='Flood Fill')
+        area = next(area for area in bpy.context.screen.areas if area.type == 'VIEW_3D')
+        space = next(space for space in area.spaces if space.type == 'VIEW_3D')
+        col.prop(space.overlay, "show_wireframes");
+        col.menu(SCULPT_MT_Faceset.bl_idname,text="Face Sets")
+        col.menu(SCULPT_MT_Trim.bl_idname,text="Trim")
+        col.menu(SCULPT_MT_Symmetrize.bl_idname,text="Symmetrize")
+        
+        mesh = context.object.data
+        col.prop(mesh, "use_mirror_x", text="X Mirror", toggle=True)
+        col.prop(mesh, "use_mirror_y", text="Y Mirror", toggle=True)
+        col.prop(mesh, "use_mirror_z", text="Z Mirror", toggle=True)
 
 # Mask and Transform Menu
 class SCULPT_MT_MaskTransMenu(Menu):
@@ -137,30 +137,6 @@ class SCULPT_MT_MaskTransMenu(Menu):
         col.operator("sculptmenu.setpivot", text='Pivot to Unmasked').mode='UNMASKED'
         col.operator("sculptmenu.setpivot", text='Pivot to Origin').mode='ORIGIN'
         col.operator("sculptmenu.setpivot", text='Pivot to Vertex').mode='ACTIVE'
-        
-# Masking Menu
-class SCULPT_MT_Masking(Menu):
-    bl_idname = "SCULPT_MT_Masking"
-    bl_label = "Masking"
-
-    def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.scale_y = 1.2
-        
-        col.operator("wm.tool_set_by_id", text='Mask',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('brush.sculpt.mask')).name = 'builtin_brush.Mask'
-        col.operator("wm.tool_set_by_id", text='Lasso Mask',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.lasso_mask")).name = 'builtin.lasso_mask' 
-        col.operator("wm.tool_set_by_id", text='Box Mask',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.border_mask")).name = 'builtin.box_mask' 
-        col.operator("wm.tool_set_by_id", text='Line Mask',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle("ops.sculpt.line_mask")).name = 'builtin.line_mask'   
-        col.operator("paint.mask_flood_fill", text='Invert Mask').mode = 'INVERT'
-        col.operator("paint.mask_flood_fill", text='Clear Mask').mode = 'VALUE'  
-        col.operator("sculptmenu.maskcommands", text='Smooth Mask').mode = 'SMOOTH'
-        col.operator("sculptmenu.maskcommands", text='Sharpen Mask').mode = 'SHARPEN'
-        col.operator("sculptmenu.maskcommands", text='Slice to Object').mode = 'SLICE'
 
 # Face Set Menu
 class SCULPT_MT_Faceset(Menu):
@@ -197,26 +173,6 @@ class SCULPT_MT_Trim(Menu):
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.sculpt.lasso_trim')).name = 'builtin.lasso_trim'
         col.operator("wm.tool_set_by_id", text='Box Trim',
                         icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.sculpt.box_trim')).name = 'builtin.box_trim'
-                        
-# Translate Menu
-class SCULPT_MT_Transform(Menu):
-    bl_idname = "SCULPT_MT_Transform"
-    bl_label = "Transform"
-
-    def draw(self, context):
-        layout = self.layout
-        col = layout.column()
-        col.scale_y = 1.2
-        
-        col.operator("wm.tool_set_by_id", text='Move',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.translate')).name = 'builtin.move'
-        col.operator("wm.tool_set_by_id", text='Rotate',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.rotate')).name = 'builtin.rotate'
-        col.operator("wm.tool_set_by_id", text='Scale',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.resize')).name = 'builtin.scale'
-        col.operator("wm.tool_set_by_id", text='Transform',
-                        icon_value=ToolSelectPanelHelper._icon_value_from_icon_handle('ops.transform.transform')).name = 'builtin.transform'
-        col.operator("sculptmenu.setpivot", text='Pivot to Mask Border').mode='BORDER'
         
 # Symmetrize Menu
 class SCULPT_MT_Symmetrize(Menu):
@@ -243,7 +199,6 @@ class SCULPT_MT_Remesh(Menu):
         layout = self.layout
         col = layout.column()
         col.scale_y = 1.2  
-        col.operator("sculptmenu.remesh", text='Remesh at Current').voxel_size = 0 
         col.operator("sculptmenu.remesh", text='.5').voxel_size = .5      
         col.operator("sculptmenu.remesh", text='.1').voxel_size = .1       
         col.operator("sculptmenu.remesh", text='.06').voxel_size = .06 
@@ -348,10 +303,8 @@ class SCULPT_OT_Remesh(Operator):
 classes = (
     SCULPT_MT_SculptMenu,
     SCULPT_MT_MaskTransMenu,
-    SCULPT_MT_Masking,
     SCULPT_MT_Faceset,
     SCULPT_MT_Trim,
-    SCULPT_MT_Transform,
     SCULPT_MT_Symmetrize,
     SCULPT_OT_Symmetrize,
     SCULPT_MT_Remesh,
